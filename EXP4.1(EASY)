@@ -1,0 +1,80 @@
+
+import java.util.*;
+
+class Employee {
+    int id;
+    String name;
+    double salary;
+
+    Employee(int id, String name, double salary) {
+        this.id = id;
+        this.name = name;
+        this.salary = salary;
+    }
+
+    @Override
+    public String toString() {
+        return "ID: " + id + ", Name: " + name + ", Salary: " + salary;
+    }
+}
+
+class EmployeeManagement {
+    private final Map<Integer, Employee> employees = new HashMap<>();
+
+    void addEmployee(int id, String name, double salary) {
+        if (employees.containsKey(id)) {
+            System.out.println("Error: Employee with ID " + id + " already exists.");
+            return;
+        }
+        employees.put(id, new Employee(id, name, salary));
+        System.out.println("Employee Added: " + employees.get(id));
+    }
+
+    void updateEmployee(int id, double newSalary) {
+        if (!employees.containsKey(id)) {
+            System.out.println("Error: Employee ID " + id + " not found.");
+            return;
+        }
+        employees.get(id).salary = newSalary;
+        System.out.println("Employee ID " + id + " updated successfully.");
+    }
+
+    void removeEmployee(int id) {
+        if (employees.remove(id) != null) {
+            System.out.println("Employee ID " + id + " removed successfully.");
+        } else {
+            System.out.println("Error: Employee ID " + id + " not found.");
+        }
+    }
+
+    void searchEmployee(int id) {
+        if (employees.containsKey(id)) {
+            System.out.println("Employee Found: " + employees.get(id));
+        } else {
+            System.out.println("Error: Employee ID " + id + " not found.");
+        }
+    }
+
+    void displayEmployees() {
+        if (employees.isEmpty()) {
+            System.out.println("No employees found.");
+        } else {
+            employees.values().forEach(System.out::println);
+        }
+    }
+}
+
+public class main {
+    public static void main(String[] args) {
+        EmployeeManagement em = new EmployeeManagement();
+        
+        em.displayEmployees();
+        em.addEmployee(101, "Anish", 50000);
+        em.addEmployee(102, "Bobby", 60000);
+        em.updateEmployee(101, 55000);
+        em.searchEmployee(102);
+        em.removeEmployee(101);
+        em.displayEmployees();
+        em.addEmployee(101, "Charlie", 70000);
+    }
+}
