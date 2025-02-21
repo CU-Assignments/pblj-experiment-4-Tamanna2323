@@ -1,0 +1,89 @@
+import java.util.Scanner;
+
+class TicketBookingSystem {
+    private boolean[] seats;
+
+    public TicketBookingSystem(int totalSeats) {
+        seats = new boolean[totalSeats];
+    }
+
+    public synchronized void bookSeat(String user, int seatNumber, boolean isVIP) {
+        try {
+            if (seatNumber < 1 || seatNumber > seats.length) {
+                System.out.println(user + ": Invalid seat number!");
+                return;
+            }
+            if (seats[seatNumber - 1]) {
+                System.out.println(user + ": Seat " + seatNumber + " is already booked!");
+            } else {
+                seats[seatNumber - 1] = true;
+                System.out.println(user + " booked seat " + seatNumber);
+            }
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+}
+
+class User extends Thread {
+    private TicketBookingSystem system;
+    private int seatNumber;
+    private boolean isVIP;
+
+    public User(String name, TicketBookingSystem system, int seatNumber, boolean isVIP) {
+        super(name);
+        this.system = system;
+        this.seatNumber = seatNumber;
+        this.isVIP = isVIP;
+        if (isVIP) {
+            setPriority(Thread.MAX_PRIORITY);
+        }
+    }
+
+    public void run() {
+        system.bookSeat(getName(), seatNumber, isVIP);
+    }
+}
+
+public class TicketBookingApp {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter total number of seats: ");
+        int totalSeats = scanner.nextInt();
+        TicketBookingSystem system = new TicketBookingSystem(totalSeats);
+
+        System.out.print("Enter number of users: ");
+        int userCount = scanner.nextInt();
+        scanner.nextLine(); 
+
+        Thread[] users = new Thread[userCount];
+
+        for (int i = 0; i < userCount; i++) {
+            System.out.print("Enter name of user " + (i + 1) + ": ");
+            String name = scanner.nextLine();
+            System.out.print("Enter seat number for " + name + ": ");
+            int seatNumber = scanner.nextInt();
+            System.out.print("Is " + name + " a VIP? (yes/no): ");
+            boolean isVIP = scanner.next().equalsIgnoreCase("yes");
+            scanner.nextLine(); 
+            users[i] = new User(name, system, seatNumber, isVIP);
+        }
+
+        System.out.println("\nProcessing bookings...\n");
+
+        for (Thread user : users) {
+            user.start();
+        }
+
+        for (Thread user : users) {
+            try {
+                user.join();
+            } catch (InterruptedException e) {
+                System.out.println("Thread interrupted: " + e.getMessage());
+            }
+        }
+
+        System.out.println("\nAll bookings completed.");
+        scanner.close();
+    }
+}
